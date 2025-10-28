@@ -1,0 +1,50 @@
+{
+  "name": "Jira High Ticket Alert",
+  "description": "Check Jira for high ticket count and send Slack alert",
+  "nodes": [
+    {
+      "id": "fetch-tickets",
+      "type": "http",
+      "method": "GET",
+      "url": "https://your-jira.atlassian.net/rest/api/2/search?jql=status=Open",
+      "headers": {
+        "Authorization": "Bearer {{JIRA_TOKEN}}",
+        "Accept": "application/json"
+      },
+      "next": "check-count"
+    },
+    {
+      "id": "check-count",
+      "type": "condition",
+      "expression": "data.fetch-tickets.total > 10",
+      "onTrue": "send-alert",
+      "onFalse": "log-normal"
+    },
+    {
+      "id": "send-alert",
+      "type": "http",
+      "method": "POST",
+      "url": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "text": "🚨 High Jira ticket count: {{data.fetch-tickets.total}} open tickets",
+        "channel": "#alerts"
+      },
+      "next": "log-alert"
+    },
+    {
+      "id": "log-normal",
+      "type": "action",
+      "action": "log",
+      "message": "Normal ticket count: {{data.fetch-tickets.total}} tickets"
+    },
+    {
+      "id": "log-alert",
+      "type": "action",
+      "action": "log",
+      "message": "Alert sent for {{data.fetch-tickets.total}} tickets"
+    }
+  ]
+}

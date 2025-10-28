@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visual Workflow Builder</title>
+    <!-- Tailwind for quick styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React, ReactDOM UMD -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- React Flow CSS and UMD build (v11) -->
+    <link rel="stylesheet" href="https://unpkg.com/reactflow@11/dist/style.css" />
+    <script src="https://unpkg.com/reactflow@11/dist/umd/reactflow.development.js"></script>
+    <!-- Babel to transpile JSX in-browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      body {
+        background: #f9fafb;
+      }
+      .card {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+      }
+      .fade-in {
+        animation: fadeInUp 0.6s ease forwards;
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      @keyframes fadeInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen">
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useCallback } = React;
+      const RF = window.ReactFlow;
+      const {
+        ReactFlow: ReactFlowComponent,
+        Background,
+        Controls,
+        addEdge,
+        useNodesState,
+        useEdgesState,
+      } = RF;
+
+      function Button({ children, variant = 'primary', ...props }) {
+        const base = 'px-4 py-2 rounded font-medium';
+        const styles =
+          variant === 'outline'
+            ? 'border border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+            : 'bg-indigo-600 text-white hover:bg-indigo-500';
+        return (
+          <button className={`${base} ${styles}`} {...props}>
+            {children}
+          </button>
+        );
+      }
+
+      function Card({ children, className = '' }) {
+        return <div className={`bg-white rounded-xl card ${className}`}>{children}</div>;
+      }
+      function CardHeader({ children, className = '' }) {
+        return <div className={`p-4 ${className}`}>{children}</div>;
+      }
+      function CardTitle({ children, className = '' }) {
+        return <h2 className={`text-xl font-semibold ${className}`}>{children}</h2>;
+      }
+      function CardContent({ children, className = '' }) {
+        return <div className={`p-6 ${className}`}>{children}</div>;
+      }
+
+      function WorkflowBuilder() {
+        const initialNodes = [
+          { id: '1', type: 'input', data: { label: 'Start Node' }, position: { x: 250, y: 50 } },
+          { id: '2', data: { label: 'Condition: value > 10' }, position: { x: 250, y: 150 } },
+          { id: '3', data: { label: '✅ Success Path' }, position: { x: 100, y: 300 } },
+          { id: '4', data: { label: '❌ Failure Path' }, position: { x: 400, y: 300 } },
+        ];
+
+        const initialEdges = [
+          { id: 'e1-2', source: '1', target: '2' },
+          { id: 'e2-3', source: '2', target: '3', label: 'true' },
+          { id: 'e2-4', source: '2', target: '4', label: 'false' },
+        ];
+
+        const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+        const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+        const onConnect = useCallback(
+          (params) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)),
+          [setEdges]
+        );
+
+        async function execute() {
+          alert('Executing workflow... (wire to /api/execute next)');
+        }
+        async function save() {
+          alert('Saving workflow... (wire to /api/workflows next)');
+        }
+
+        return (
+          <div className="flex flex-col items-center p-6 bg-gray-50 min-h-screen">
+            <div className="w-full max-w-5xl fade-in">
+              <Card className="border-none">
+                <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-t-xl">
+                  <CardTitle className="text-2xl font-bold">⚙️ Visual Workflow Builder</CardTitle>
+                </CardHeader>
+                <CardContent className="bg-white rounded-b-xl">
+                  <div className="h-[500px] border rounded-lg">
+                    <ReactFlowComponent
+                      nodes={nodes}
+                      edges={edges}
+                      onNodesChange={onNodesChange}
+                      onEdgesChange={onEdgesChange}
+                      onConnect={onConnect}
+                      fitView
+                    >
+                      <Background color="#aaa" gap={16} />
+                      <Controls />
+                    </ReactFlowComponent>
+                  </div>
+
+                  <div className="mt-6 flex gap-4 justify-center">
+                    <Button onClick={execute}>▶️ Execute</Button>
+                    <Button variant="outline" onClick={save}>
+                      💾 Save
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                <Card className="p-4">
+                  <CardTitle>📋 Node Library</CardTitle>
+                  <p className="text-gray-500 mt-2 text-sm">Drag nodes to canvas (coming soon)</p>
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    <Button variant="outline">Action Node</Button>
+                    <Button variant="outline">Condition Node</Button>
+                    <Button variant="outline">HTTP Node</Button>
+                    <Button variant="outline">Delay Node</Button>
+                  </div>
+                </Card>
+
+                <Card className="p-4">
+                  <CardTitle>🧩 Node Details</CardTitle>
+                  <p className="text-gray-500 mt-2 text-sm">
+                    Select a node to edit its configuration
+                  </p>
+                  <textarea
+                    className="w-full h-40 mt-4 border rounded-lg p-2 text-sm font-mono"
+                    placeholder="Node configuration JSON will appear here..."
+                  ></textarea>
+                </Card>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<WorkflowBuilder />);
+    </script>
+  </body>
+</html>

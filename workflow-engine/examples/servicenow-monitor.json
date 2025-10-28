@@ -1,0 +1,50 @@
+{
+  "name": "ServiceNow Incident Monitor",
+  "description": "Monitor ServiceNow incidents and alert on high priority",
+  "nodes": [
+    {
+      "id": "fetch-incidents",
+      "type": "servicenow",
+      "action": "getIncidents",
+      "config": {
+        "priority": "1",
+        "state": "2"
+      },
+      "next": "check-count"
+    },
+    {
+      "id": "check-count",
+      "type": "condition",
+      "expression": "data.fetch-incidents.incidents.length > 3",
+      "onTrue": "create-alert-incident",
+      "onFalse": "log-status"
+    },
+    {
+      "id": "create-alert-incident",
+      "type": "servicenow",
+      "action": "createIncident",
+      "config": {
+        "shortDescription": "High Priority Incident Alert",
+        "description": "{{data.fetch-incidents.incidents.length}} high priority incidents detected",
+        "priority": "2",
+        "category": "Software"
+      },
+      "next": "notify-slack"
+    },
+    {
+      "id": "notify-slack",
+      "type": "slack",
+      "action": "sendMessage",
+      "config": {
+        "channel": "#it-alerts",
+        "text": "🚨 ServiceNow Alert: {{data.fetch-incidents.incidents.length}} P1 incidents open. New alert incident created: {{data.create-alert-incident.incident.number}}"
+      }
+    },
+    {
+      "id": "log-status",
+      "type": "action",
+      "action": "log",
+      "message": "Normal incident levels: {{data.fetch-incidents.incidents.length}} P1 incidents"
+    }
+  ]
+}

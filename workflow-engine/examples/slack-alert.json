@@ -1,0 +1,36 @@
+{
+  "name": "Slack Alert Workflow",
+  "description": "Send Slack alert when conditions are met",
+  "nodes": [
+    {
+      "id": "check-data",
+      "type": "condition",
+      "expression": "alertCount > 5",
+      "onTrue": "send-slack-alert",
+      "onFalse": "log-normal"
+    },
+    {
+      "id": "send-slack-alert",
+      "type": "slack",
+      "action": "sendMessage",
+      "config": {
+        "channel": "#alerts",
+        "text": "⚠️ Alert threshold exceeded: {{alertCount}} incidents detected",
+        "username": "Workflow Bot"
+      },
+      "next": "log-sent"
+    },
+    {
+      "id": "log-normal",
+      "type": "action",
+      "action": "log",
+      "message": "Normal status: {{alertCount}} incidents"
+    },
+    {
+      "id": "log-sent",
+      "type": "action",
+      "action": "log",
+      "message": "Slack alert sent for {{alertCount}} incidents"
+    }
+  ]
+}

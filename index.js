@@ -11,10 +11,10 @@ app.use(express.static('public'));
 
 // Basic health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     timestamp: new Date().toISOString(),
-    service: 'n8n-personal-dashboard'
+    service: 'workflow-engine',
   });
 });
 
@@ -25,8 +25,8 @@ app.get('/', (req, res) => {
     endpoints: {
       health: '/health',
       workflows: '/api/workflows',
-      integrations: '/api/integrations'
-    }
+      integrations: '/api/integrations',
+    },
   });
 });
 
@@ -34,7 +34,7 @@ app.get('/', (req, res) => {
 app.get('/api/workflows', (req, res) => {
   res.json({
     message: 'Workflow management endpoint',
-    note: 'Connect to n8n API for workflow operations'
+    note: 'Connect to n8n API for workflow operations',
   });
 });
 
@@ -44,13 +44,13 @@ app.get('/api/integrations', (req, res) => {
     slack: { status: 'configured', active: false },
     confluence: { status: 'configured', active: false },
     jira: { status: 'configured', active: false },
-    servicenow: { status: 'configured', active: false }
+    servicenow: { status: 'configured', active: false },
   });
 });
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`n8n Personal Dashboard server running on port ${PORT}`);
+  console.log(`Workflow Engine server running on port ${PORT}`);
   console.log(`Health check: http://localhost:${PORT}/health`);
   console.log(`API docs: http://localhost:${PORT}/`);
 });

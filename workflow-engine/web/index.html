@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Custom Workflow Engine</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+
+      .container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      .panel {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .workflow-form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      label {
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #333;
+      }
+
+      input,
+      select,
+      textarea {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      textarea {
+        min-height: 100px;
+        font-family: monospace;
+      }
+
+      button {
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      button:hover {
+        background: #5a6fd8;
+      }
+
+      .output {
+        background: #1e1e1e;
+        color: #00ff00;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .node {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+      }
+
+      .examples {
+        margin-top: 20px;
+      }
+
+      .example-btn {
+        background: #28a745;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        padding: 8px 16px;
+        font-size: 14px;
+      }
+
+      .example-btn:hover {
+        background: #218838;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>🔧 Custom Workflow Engine</h1>
+      <p>Enterprise-grade workflow automation without external dependencies</p>
+      <p style="margin-top: 8px">
+        <a href="/builder2.html" style="color: #fff; text-decoration: underline"
+          >Open Visual Workflow Builder</a
+        >
+      </p>
+    </div>
+
+    <div class="container">
+      <div class="panel">
+        <h2>📝 Workflow Builder</h2>
+
+        <div class="workflow-form">
+          <div class="form-group">
+            <label for="workflowName">Workflow Name:</label>
+            <input type="text" id="workflowName" value="My Workflow" />
+          </div>
+
+          <div class="form-group">
+            <label for="workflowJson">Workflow JSON:</label>
+            <textarea id="workflowJson" placeholder="Paste workflow JSON here...">
+{
+  "name": "Simple Test",
+  "nodes": [
+    {
+      "id": "start",
+      "type": "action",
+      "action": "log",
+      "message": "Hello World!"
+    }
+  ]
+}</textarea
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="inputData">Input Data (JSON):</label>
+            <textarea id="inputData" placeholder="Initial data for workflow...">
+{
+  "testValue": 15,
+  "message": "Hello from workflow engine"
+}</textarea
+            >
+          </div>
+
+          <button onclick="executeWorkflow()">▶️ Execute Workflow</button>
+        </div>
+
+        <div class="examples">
+          <h3>📋 Example Workflows:</h3>
+          <button class="example-btn" onclick="loadExample('simple')">Simple Test</button>
+          <button class="example-btn" onclick="loadExample('condition')">If-Then-Else</button>
+          <button class="example-btn" onclick="loadExample('http')">HTTP Request</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>📊 Execution Results</h2>
+        <div id="output" class="output">Ready to execute workflows...</div>
+      </div>
+    </div>
+
+    <script>
+      // Example workflows
+      const examples = {
+        simple: {
+          name: 'Simple Test Workflow',
+          json: {
+            name: 'Simple Test',
+            nodes: [
+              {
+                id: 'start',
+                type: 'action',
+                action: 'log',
+                message: 'Workflow started with: {{message}}',
+              },
+            ],
+          },
+          data: {
+            message: 'Hello from workflow engine!',
+          },
+        },
+        condition: {
+          name: 'Condition Test Workflow',
+          json: {
+            name: 'If-Then-Else Test',
+            nodes: [
+              {
+                id: 'check',
+                type: 'condition',
+                expression: 'testValue > 10',
+                onTrue: 'success',
+                onFalse: 'failure',
+              },
+              {
+                id: 'success',
+                type: 'action',
+                action: 'log',
+                message: '✅ Value {{testValue}} is greater than 10',
+              },
+              {
+                id: 'failure',
+                type: 'action',
+                action: 'log',
+                message: '❌ Value {{testValue}} is not greater than 10',
+              },
+            ],
+          },
+          data: {
+            testValue: 15,
+          },
+        },
+        http: {
+          name: 'HTTP Request Test',
+          json: {
+            name: 'HTTP Request Test',
+            nodes: [
+              {
+                id: 'fetch',
+                type: 'http',
+                method: 'GET',
+                url: 'https://api.github.com/repos/microsoft/vscode',
+                next: 'process',
+              },
+              {
+                id: 'process',
+                type: 'action',
+                action: 'log',
+                message: 'Repository: {{data.fetch.name}} - Stars: {{data.fetch.stargazers_count}}',
+              },
+            ],
+          },
+          data: {},
+        },
+      };
+
+      function loadExample(type) {
+        const example = examples[type];
+        document.getElementById('workflowName').value = example.name;
+        document.getElementById('workflowJson').value = JSON.stringify(example.json, null, 2);
+        document.getElementById('inputData').value = JSON.stringify(example.data, null, 2);
+      }
+
+      async function executeWorkflow() {
+        const output = document.getElementById('output');
+        output.textContent = 'Executing workflow...\n';
+
+        try {
+          const workflowJson = JSON.parse(document.getElementById('workflowJson').value);
+          const inputData = JSON.parse(document.getElementById('inputData').value);
+
+          const response = await fetch('/api/execute', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              workflow: workflowJson,
+              data: inputData,
+            }),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            output.textContent += '✅ Workflow executed successfully!\n\n';
+            output.textContent += 'Results:\n' + JSON.stringify(result.data, null, 2);
+          } else {
+            output.textContent += '❌ Workflow execution failed:\n' + result.error;
+          }
+        } catch (error) {
+          output.textContent += '❌ Error: ' + error.message;
+        }
+      }
+
+      // Load simple example by default
+      loadExample('simple');
+    </script>
+  </body>
+</html>
