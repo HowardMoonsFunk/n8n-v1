@@ -215,9 +215,19 @@ git push -u origin main ✅
   - API: `/api/execute`, `/api/validate`, `/api/examples`, `/api/workflows`
 - Old builder page (`builder.html`) deprecated in favor of `builder2.html`
 
+### Dependencies (UI + Runtime)
+
+- Server: `express`, `axios`
+- Web UI: `react@18` (UMD), `react-dom@18` (UMD), `reactflow@11` (UMD + CSS), `@babel/standalone`
+- Styling: Tailwind via CDN (optional to vendor locally)
+
+All browser assets (React/DOM, React Flow, Babel) are also vendored locally in
+`workflow-engine/web/vendor/` so the builder works offline and in restricted networks.
+
 ### Decisions
 
 - Use no-bundler setup for the builder (React/ReactDOM UMD, React Flow UMD, Babel in-browser)
+- Vendor React/ReactDOM/React Flow/Babel locally to eliminate external CDN dependency for core UI
 - Keep `builder2.html` as the canonical builder page; remove `builder.html` to avoid confusion
 - Maintain zero external workflow tool dependency for compliance
 

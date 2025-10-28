@@ -48,6 +48,42 @@ workflow-engine/
 4. **Web Interface**: Simple form-based workflow creation
 5. **Local Testing**: Run workflows immediately
 
+## 📦 Dependencies (documented)
+
+Server/runtime (Node.js):
+
+- express (API + static hosting)
+- axios (HTTP client for nodes)
+
+Web UI (no bundler):
+
+- react 18 (vendored UMD)
+- react-dom 18 (vendored UMD)
+- reactflow 11 (vendored UMD + CSS)
+- @babel/standalone (vendored, in-browser JSX transform)
+
+Styling:
+
+- Tailwind CSS via CDN for now (can be vendored if offline-only is required)
+
+## 🗂️ Local, vendored browser assets
+
+To avoid CDNs and enable offline/locked-down environments, the UI loads all browser libraries from
+local files served by the app:
+
+```
+workflow-engine/web/vendor/
+├── react.production.min.js
+├── react-dom.production.min.js
+├── reactflow.umd.js
+├── reactflow-style.css
+└── babel.min.js
+```
+
+The Visual Builder page `web/builder2.html` references the files above and compiles JSX in the
+browser using Babel Standalone (no build step). Tailwind is currently served from the CDN; switch to
+a local stylesheet or a vendored Tailwind build if external access is not permitted.
+
 ### Example Workflow (JSON):
 
 ```json

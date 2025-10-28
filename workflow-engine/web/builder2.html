@@ -6,14 +6,14 @@
     <title>Visual Workflow Builder</title>
     <!-- Tailwind for quick styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React, ReactDOM UMD -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <!-- React Flow CSS and UMD build (v11) -->
-    <link rel="stylesheet" href="https://unpkg.com/reactflow@11/dist/style.css" />
-    <script src="https://unpkg.com/reactflow@11/dist/umd/reactflow.development.js"></script>
-    <!-- Babel to transpile JSX in-browser -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- React, ReactDOM UMD (local, vendored) -->
+    <script src="/vendor/react.production.min.js"></script>
+    <script src="/vendor/react-dom.production.min.js"></script>
+    <!-- React Flow CSS and UMD (local, vendored) -->
+    <link rel="stylesheet" href="/vendor/reactflow-style.css" />
+    <script src="/vendor/reactflow.umd.js"></script>
+    <!-- Babel to transpile JSX in-browser (local, vendored) -->
+    <script src="/vendor/babel.min.js"></script>
     <style>
       body {
         background: #f9fafb;
@@ -35,19 +35,56 @@
     </style>
   </head>
   <body class="min-h-screen">
+    <pre
+      id="debug"
+      style="
+        position: fixed;
+        bottom: 12px;
+        left: 12px;
+        z-index: 9999;
+        background: #111;
+        color: #0f0;
+        padding: 8px 10px;
+        border-radius: 6px;
+        max-width: 50vw;
+        max-height: 30vh;
+        overflow: auto;
+        font: 12px/1.3 monospace;
+        opacity: 0.9;
+        display: none;
+      "
+    ></pre>
     <div id="root"></div>
 
-    <script type="text/babel">
+    <script type="text/babel" data-presets="react,env">
+      const $logBox = document.getElementById('debug');
+      const log = (m) => {
+        if ($logBox) {
+          $logBox.style.display = 'block';
+          $logBox.textContent += m + '\n';
+        }
+        console.log(m);
+      };
+      log('[builder2] Babel preset react/env active');
       const { useCallback } = React;
-      const RF = window.ReactFlow;
-      const {
-        ReactFlow: ReactFlowComponent,
-        Background,
-        Controls,
-        addEdge,
-        useNodesState,
-        useEdgesState,
-      } = RF;
+      const RF = window.ReactFlow || window.reactFlow || {};
+      if (!window.React) log('[builder2] React missing');
+      else log('[builder2] React OK');
+      if (!window.ReactDOM) log('[builder2] ReactDOM missing');
+      else log('[builder2] ReactDOM OK');
+      // Support different UMD export shapes
+      const ReactFlowComponent =
+        RF.default || RF.ReactFlow || RF.ReactFlowProvider || RF.ReactFlowDefault || null;
+      const Background = RF.Background;
+      const Controls = RF.Controls;
+      const addEdge = RF.addEdge;
+      const useNodesState = RF.useNodesState;
+      const useEdgesState = RF.useEdgesState;
+      if (!ReactFlowComponent || !useNodesState || !useEdgesState) {
+        log('[builder2] ReactFlow UMD missing or incomplete');
+      } else {
+        log('[builder2] ReactFlow OK');
+      }
 
       function Button({ children, variant = 'primary', ...props }) {
         const base = 'px-4 py-2 rounded font-medium';
@@ -76,6 +113,21 @@
       }
 
       function WorkflowBuilder() {
+        // Fallback UI if React Flow failed to load
+        if (!ReactFlowComponent || !useNodesState || !useEdgesState) {
+          return (
+            <div className="p-6">
+              <div className="max-w-2xl mx-auto bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="font-semibold text-yellow-800 mb-1">React Flow failed to load</div>
+                <div className="text-sm text-yellow-700">
+                  The React Flow UMD bundle could not be detected. This page requires network access
+                  to cdn.jsdelivr.net or unpkg.com. If you’re offline or behind a firewall, try
+                  connecting/whitelisting the CDN and hard refresh.
+                </div>
+              </div>
+            </div>
+          );
+        }
         const initialNodes = [
           { id: '1', type: 'input', data: { label: 'Start Node' }, position: { x: 250, y: 50 } },
           { id: '2', data: { label: 'Condition: value > 10' }, position: { x: 250, y: 150 } },
@@ -163,8 +215,21 @@
         );
       }
 
-      const root = ReactDOM.createRoot(document.getElementById('root'));
-      root.render(<WorkflowBuilder />);
+      try {
+        const mount = document.getElementById('root');
+        if (!mount) {
+          console.error('[builder2] Root mount not found');
+          log('[builder2] ERROR: #root not found');
+        } else {
+          mount.innerHTML = '<div class="text-gray-500">Initializing Workflow Builder…</div>';
+          const root = ReactDOM.createRoot(mount);
+          root.render(<WorkflowBuilder />);
+          log('[builder2] Rendered WorkflowBuilder');
+        }
+      } catch (err) {
+        console.error('[builder2] Render error', err);
+        log('[builder2] Render error: ' + (err && err.message ? err.message : err));
+      }
     </script>
   </body>
 </html>
