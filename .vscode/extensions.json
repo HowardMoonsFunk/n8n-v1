@@ -1,0 +1,16 @@
+{
+  "recommendations": [
+    "GitHub.copilot",
+    "GitHub.copilot-chat",
+    "esbenp.prettier-vscode",
+    "redhat.vscode-yaml",
+    "xabikos.JavaScriptSnippets",
+    "humao.rest-client",
+    "ms-playwright.playwright",
+    "ms-vscode.vscode-json",
+    "ms-vscode.makefile-tools",
+    "eamodio.gitlens",
+    "ms-vscode.githistory",
+    "mhutchie.git-graph"
+  ]
+}

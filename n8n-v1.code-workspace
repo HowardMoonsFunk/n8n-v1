@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"github.copilot.enable": {
+			"*": true,
+			"plaintext": true,
+			"markdown": true,
+			"yaml": true,
+			"json": true
+		},
+		"github.copilot.chat.localeOverride": "en",
+		"terminal.integrated.defaultProfile.linux": "bash",
+		"workbench.editor.enablePreview": true,
+		"workbench.editor.enablePreviewFromQuickOpen": true,
+		"git.ignoreLimitWarning": true
+	}
+}

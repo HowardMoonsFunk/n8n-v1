@@ -1,0 +1,64 @@
+{
+  "integrations": {
+    "slack": {
+      "name": "Slack Integration",
+      "type": "communication",
+      "endpoints": {
+        "webhook": "/webhook/slack",
+        "oauth": "/auth/slack"
+      },
+      "features": [
+        "message_notifications",
+        "channel_monitoring",
+        "user_status_updates"
+      ]
+    },
+    "confluence": {
+      "name": "Confluence Integration", 
+      "type": "documentation",
+      "endpoints": {
+        "api": "/rest/api/content",
+        "search": "/rest/api/search"
+      },
+      "features": [
+        "content_sync",
+        "page_monitoring",
+        "search_integration"
+      ]
+    },
+    "jira": {
+      "name": "Jira Integration",
+      "type": "project_management", 
+      "endpoints": {
+        "api": "/rest/api/2",
+        "webhook": "/webhook/jira"
+      },
+      "features": [
+        "ticket_tracking",
+        "status_updates", 
+        "sprint_monitoring"
+      ]
+    },
+    "servicenow": {
+      "name": "ServiceNow Integration",
+      "type": "itsm",
+      "endpoints": {
+        "api": "/api/now/table",
+        "webhook": "/webhook/servicenow"
+      },
+      "features": [
+        "incident_management",
+        "change_requests",
+        "service_catalog"
+      ]
+    }
+  },
+  "playwright": {
+    "scrapers": {
+      "fallback_mode": true,
+      "retry_attempts": 3,
+      "timeout": 30000,
+      "headless": true
+    }
+  }
+}
